@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<title>סקר שמחת בית השואבה</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  direction: rtl;
+  background: linear-gradient(120deg, #f6d365, #fda085);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+h2 { color: #333; margin-bottom: 20px; }
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+button {
+  padding: 12px 25px;
+  margin: 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.yes { background-color: #4CAF50; color: white; }
+.no { background-color: #f44336; color: white; }
+.maybe { background-color: #FFC107; color: white; }
+#summary {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>אתה מתכנן להגיע לשמחת בית השואבה?</h2>
+  <input id="nameInput" type="text" placeholder="הכנס שם">
+  <div>
+    <button class="yes" onclick="vote('כן בהחלט')">✅ כן בהחלט</button>
+    <button class="no" onclick="vote('לא אני לא משועמם')">❌ לא אני לא משועמם</button>
+    <button class="maybe" onclick="vote('לא הוחלט')">❓ לא הוחלט</button>
+  </div>
+  <div id="summary">
+    כן בהחלט: 0 | לא אני לא משועמם: 0 | לא הוחלט: 0
+  </div>
+</div>
+
+<script>
+let counts = { 'כן בהחלט': 0, 'לא אני לא משועמם': 0, 'לא הוחלט': 0 };
+
+function vote(choice) {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    alert('אנא הכנס שם לפני ההצבעה!');
+    return;
+  }
+
+  counts[choice]++;
+  updateSummary();
+
+  alert(`${name} הצביע: ${choice}`);
+}
+
+function updateSummary() {
+  document.getElementById('summary').textContent =
+    `כן בהחלט: ${counts['כן בהחלט']} | לא אני לא משועמם: ${counts['לא אני לא משועמם']} | לא הוחלט: ${counts['לא הוחלט']}`;
+}
+</script>
+</body>
+</html>
