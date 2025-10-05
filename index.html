@@ -1,187 +1,199 @@
+```html
 <!DOCTYPE html>
 <html lang="he">
 <head>
-  <meta charset="UTF-8">
-  <title>סקר שמחת בית השואבה</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #a0eafc, #fdd6e0);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 50px;
-      min-height: 100vh;
-      margin: 0;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>סקר שמחת בית השואבה — Shay Lebel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#f5fbff;
+    --bg2:#fff0f6;
+    --card:#ffffff;
+    --accent:#007acc;
+    --accent-2:#005fa3;
+    --success:#00c46b;
+    --muted:#6b6b6b;
+  }
 
-    h1 { color: #333; margin-bottom: 30px; text-align: center; }
+  *{box-sizing:border-box}
+  body{
+    font-family: 'Inter', system-ui, Arial, sans-serif;
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:36px;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#222;
+  }
 
-    input[type="text"] {
-      padding: 12px;
-      font-size: 16px;
-      width: 300px;
-      border-radius: 8px;
-      border: 1px solid #aaa;
-      margin-bottom: 30px;
-      transition: 0.2s;
-    }
+  .wrap{
+    width:100%;
+    max-width:560px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.7));
+    border-radius:18px;
+    padding:28px;
+    box-shadow: 0 10px 30px rgba(20,30,60,0.08);
+    backdrop-filter: blur(6px);
+    text-align:center;
+  }
 
-    input[type="text"]:focus {
-      border-color: #007acc;
-      outline: none;
-      box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
-    }
+  h1{
+    font-size:22px;
+    margin-bottom:20px;
+    color:#14233a;
+  }
 
-    .card {
-      background: white;
-      border-radius: 12px;
-      width: 320px;
-      margin: 10px 0;
-      padding: 20px;
-      text-align: center;
-      font-size: 16px;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      position: relative;
-    }
+  /* floating input */
+  .field {
+    position:relative;
+    margin-bottom:24px;
+    width:100%;
+  }
+  .field input{
+    width:100%;
+    padding:14px 14px 14px 44px;
+    border-radius:10px;
+    border:1px solid rgba(10,20,40,0.08);
+    background:var(--card);
+    font-size:15px;
+    transition: box-shadow .18s, border-color .18s;
+  }
+  .field input:focus{
+    border-color:var(--accent);
+    box-shadow:0 6px 20px rgba(0,122,204,0.12);
+    outline:none;
+  }
+  .field .icon {
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:16px;
+    opacity:0.9;
+  }
+  .field label{
+    position:absolute;
+    left:44px;
+    top:50%;
+    transform:translateY(-50%);
+    pointer-events:none;
+    color:#9aa4b2;
+    transition: all .18s;
+    font-size:14px;
+  }
+  .field input:not(:placeholder-shown) + label,
+  .field input:focus + label {
+    transform: translateY(-170%) scale(.95);
+    color:var(--accent-2);
+  }
 
-    .card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+  /* cards */
+  .cards {
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .card {
+    background: linear-gradient(180deg,var(--card), #f7fbff);
+    border-radius:12px;
+    padding:16px 18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    transition: transform .16s ease, box-shadow .16s ease, background .16s;
+    box-shadow: 0 6px 18px rgba(20,30,60,0.04);
+    font-weight:600;
+    color:#12324b;
+  }
+  .card .c-icon { font-size:18px; opacity:0.95 }
+  .card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 40px rgba(20,30,60,0.08); }
+  .card.selected { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; box-shadow: 0 20px 50px rgba(0,100,170,0.16);}
+  .card .chip { margin-left:auto; background: rgba(0,0,0,0.06); padding:6px 10px; border-radius:999px; font-weight:600; font-size:13px;}
+  .card.selected .chip { background: rgba(255,255,255,0.14); color:#fff }
 
-    .card.selected {
-      background-color: #007acc;
-      color: white;
-      transform: scale(1.05);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
+  /* thankyou modal */
+  #thankyou {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.88);
+    background: var(--success); color:#fff; padding:22px 36px; border-radius:12px;font-weight:700; box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+    opacity:0; transition: all .28s ease; z-index:999;
+  }
+  #thankyou.show { transform:translate(-50%,-50%) scale(1); opacity:1; }
 
-    .count {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background: #eee;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    #status { margin-top: 20px; font-weight: bold; font-size: 18px; text-align: center; }
-
-    #thankyou {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      background-color: #00cc66;
-      color: white;
-      padding: 40px 60px;
-      border-radius: 12px;
-      font-size: 22px;
-      font-weight: bold;
-      text-align: center;
-      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      opacity: 0;
-      z-index: 100;
-    }
-
-    #thankyou.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  </style>
+  footer { margin-top:28px; text-align:center; color:var(--muted); font-size:14px; }
+</style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>אתה מתכנן לבוא לשמחת בית השואבה?</h1>
 
-<h1>אתה מתכנן לבוא לשמחת בית השואבה?</h1>
+    <div class="field">
+      <input id="name" type="text" placeholder=" " autocomplete="off" />
+      <span class="icon">🖊️</span>
+      <label for="name">הכנס את שמך</label>
+    </div>
 
-<input type="text" id="name" placeholder="הכנס את שמך">
+    <div class="cards">
+      <div class="card" data-answer="א. כן בהחלט"><span class="c-icon">✅</span> א. כן בהחלט <span class="chip">לחץ</span></div>
+      <div class="card" data-answer="ב. לא אני לא משועמם"><span class="c-icon">❌</span> ב. לא אני לא משועמם <span class="chip">לחץ</span></div>
+      <div class="card" data-answer="ג. עדיין לא הוחלט"><span class="c-icon">❔</span> ג. עדיין לא הוחלט <span class="chip">לחץ</span></div>
+    </div>
 
-<div class="card" data-answer="א. כן בהחלט">א. כן בהחלט <div class="count" id="count-a">0</div></div>
-<div class="card" data-answer="ב. לא, אני לא מתכוון לבוא">ב. לא, אני לא מתכוון לבוא <div class="count" id="count-b">0</div></div>
-<div class="card" data-answer="ג. עדיין לא הוחלט">ג. עדיין לא הוחלט <div class="count" id="count-c">0</div></div>
+    <footer>✨ Shay Lebel</footer>
+  </div>
 
-<p id="status"></p>
-<div id="thankyou">תודה על ההצבעה! ✅</div>
+  <div id="thankyou" role="status" aria-hidden="true">תודה על ההצבעה! 🎉</div>
 
 <script>
-const WEBHOOK_URL = "הכנס_כאן_את_ה_URL_שלך"; // החלף ב-Webhook שלך
-const status = document.getElementById('status');
+const WEBHOOK_URL = "https://chat.googleapis.com/v1/spaces/AAAAXVE7Ptg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=658gXcM9WbTSvXTD20eMvgEHzIu_D521soMTAL7npWg";
 const thankyou = document.getElementById('thankyou');
-
-// ספירה מקומית
-const counts = JSON.parse(localStorage.getItem('counts')) || {
-  "א. כן בהחלט": 0,
-  "ב. לא, אני לא מתכוון לבוא": 0,
-  "ג. עדיין לא הוחלט": 0
-};
-
-const updateCounts = () => {
-  document.getElementById('count-a').innerText = counts["א. כן בהחלט"];
-  document.getElementById('count-b').innerText = counts["ב. לא, אני לא מתכוון לבוא"];
-  document.getElementById('count-c').innerText = counts["ג. עדיין לא הוחלט"];
-}
-
-updateCounts();
 
 document.querySelectorAll('.card').forEach(card => {
   card.addEventListener('click', async () => {
     const name = document.getElementById('name').value.trim();
     const answer = card.getAttribute('data-answer');
 
-    if (!name) {
-      status.innerText = "אנא הכנס את שמך לפני שליחת התשובה";
-      status.style.color = "red";
-      return;
-    }
+    if (!name) { alert("אנא הכנס את שמך לפני שליחת התשובה"); return; }
 
-    // בדיקה אם כבר הצביע עם שם זה
-    const voted = JSON.parse(localStorage.getItem('voted')) || {};
-    if (voted[name]) {
-      status.innerText = "כבר הצבעת עם שם זה!";
-      status.style.color = "red";
-      return;
-    }
-
-    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
 
-    // שליחה ל-Google Chat
-    const message = { text: `שם: ${name}\nתשובה: ${answer}` };
+    const message = {
+      text: `🗳️ סקר שמחת בית השואבה
+--------------------------------
+👤 שם: ${name}
+✅ תשובה: ${answer}
+🕒 זמן הצבעה: ${new Date().toLocaleString('he-IL')}`
+    };
+
     try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+      const resp = await fetch(WEBHOOK_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json; charset=UTF-8' },
         body: JSON.stringify(message)
       });
 
-      if (!response.ok) throw new Error("Failed to send");
-
-      // עדכון ספירה מקומית
-      counts[answer]++;
-      localStorage.setItem('counts', JSON.stringify(counts));
-      voted[name] = answer;
-      localStorage.setItem('voted', JSON.stringify(voted));
-      updateCounts();
-
-      thankyou.classList.add('show');
-      setTimeout(() => {
-        thankyou.classList.remove('show');
-        document.getElementById('name').value = '';
-        card.classList.remove('selected');
-        status.innerText = '';
-      }, 1500);
-
-    } catch (err) {
-      status.innerText = "שגיאה בשליחת התשובה לצ’אט.";
-      status.style.color = "red";
-      console.error(err);
+      if (resp.ok) {
+        thankyou.classList.add('show');
+        setTimeout(()=>{
+          thankyou.classList.remove('show');
+          document.getElementById('name').value='';
+          card.classList.remove('selected');
+        },1300);
+      } else {
+        alert("שגיאה בשליחת התשובה.");
+      }
+    } catch(e) {
+      alert("שגיאה בשליחת התשובה.");
+      console.error(e);
     }
   });
 });
 </script>
-
 </body>
 </html>
+```
