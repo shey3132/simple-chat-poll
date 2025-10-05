@@ -1,90 +1,187 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-<meta charset="UTF-8">
-<title>סקר שמחת בית השואבה</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body {
-  font-family: Arial, sans-serif;
-  direction: rtl;
-  background-color: #f2f2f2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-}
-.container {
-  background: #fff;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-}
-h2 { color: #333; margin-bottom: 20px; }
-input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-button {
-  padding: 12px 25px;
-  margin: 5px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.yes { background-color: #4CAF50; color: white; }
-.no { background-color: #f44336; color: white; }
-.maybe { background-color: #FFC107; color: white; }
-#summary {
-  margin-top: 20px;
-  font-size: 16px;
-  font-weight: bold;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>סקר שמחת בית השואבה</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #a0eafc, #fdd6e0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 { color: #333; margin-bottom: 30px; text-align: center; }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 16px;
+      width: 300px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      margin-bottom: 30px;
+      transition: 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #007acc;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 122, 204, 0.5);
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      width: 320px;
+      margin: 10px 0;
+      padding: 20px;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+
+    .card.selected {
+      background-color: #007acc;
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .count {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: #eee;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #status { margin-top: 20px; font-weight: bold; font-size: 18px; text-align: center; }
+
+    #thankyou {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background-color: #00cc66;
+      color: white;
+      padding: 40px 60px;
+      border-radius: 12px;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      opacity: 0;
+      z-index: 100;
+    }
+
+    #thankyou.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  </style>
 </head>
 <body>
-<div class="container">
-  <h2>אתה מתכנן להגיע לשמחת בית השואבה?</h2>
-  <input id="nameInput" type="text" placeholder="הכנס שם">
-  <div>
-    <button class="yes" onclick="vote('כן בהחלט')">✅ כן בהחלט</button>
-    <button class="no" onclick="vote('לא אני לא משועמם')">❌ לא אני לא משועמם</button>
-    <button class="maybe" onclick="vote('לא הוחלט')">❓ לא הוחלט</button>
-  </div>
-  <div id="summary">
-    כן בהחלט: 0 | לא אני לא משועמם: 0 | לא הוחלט: 0
-  </div>
-</div>
+
+<h1>אתה מתכנן לבוא לשמחת בית השואבה?</h1>
+
+<input type="text" id="name" placeholder="הכנס את שמך">
+
+<div class="card" data-answer="א. כן בהחלט">א. כן בהחלט <div class="count" id="count-a">0</div></div>
+<div class="card" data-answer="ב. לא, אני לא מתכוון לבוא">ב. לא, אני לא מתכוון לבוא <div class="count" id="count-b">0</div></div>
+<div class="card" data-answer="ג. עדיין לא הוחלט">ג. עדיין לא הוחלט <div class="count" id="count-c">0</div></div>
+
+<p id="status"></p>
+<div id="thankyou">תודה על ההצבעה! ✅</div>
 
 <script>
-let counts = { 'כן בהחלט': 0, 'לא אני לא משועמם': 0, 'לא הוחלט': 0 };
+const WEBHOOK_URL = "הכנס_כאן_את_ה_URL_שלך"; // החלף ב-Webhook שלך
+const status = document.getElementById('status');
+const thankyou = document.getElementById('thankyou');
 
-function vote(choice) {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) {
-    alert('אנא הכנס שם לפני ההצבעה!');
-    return;
-  }
+// ספירה מקומית
+const counts = JSON.parse(localStorage.getItem('counts')) || {
+  "א. כן בהחלט": 0,
+  "ב. לא, אני לא מתכוון לבוא": 0,
+  "ג. עדיין לא הוחלט": 0
+};
 
-  counts[choice]++;
-  updateSummary();
-
-  alert(`${name} הצביע: ${choice}`);
+const updateCounts = () => {
+  document.getElementById('count-a').innerText = counts["א. כן בהחלט"];
+  document.getElementById('count-b').innerText = counts["ב. לא, אני לא מתכוון לבוא"];
+  document.getElementById('count-c').innerText = counts["ג. עדיין לא הוחלט"];
 }
 
-function updateSummary() {
-  document.getElementById('summary').textContent =
-    `כן בהחלט: ${counts['כן בהחלט']} | לא אני לא משועמם: ${counts['לא אני לא משועמם']} | לא הוחלט: ${counts['לא הוחלט']}`;
-}
+updateCounts();
+
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', async () => {
+    const name = document.getElementById('name').value.trim();
+    const answer = card.getAttribute('data-answer');
+
+    if (!name) {
+      status.innerText = "אנא הכנס את שמך לפני שליחת התשובה";
+      status.style.color = "red";
+      return;
+    }
+
+    // בדיקה אם כבר הצביע עם שם זה
+    const voted = JSON.parse(localStorage.getItem('voted')) || {};
+    if (voted[name]) {
+      status.innerText = "כבר הצבעת עם שם זה!";
+      status.style.color = "red";
+      return;
+    }
+
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    // שליחה ל-Google Chat
+    const message = { text: `שם: ${name}\nתשובה: ${answer}` };
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify(message)
+      });
+
+      if (!response.ok) throw new Error("Failed to send");
+
+      // עדכון ספירה מקומית
+      counts[answer]++;
+      localStorage.setItem('counts', JSON.stringify(counts));
+      voted[name] = answer;
+      localStorage.setItem('voted', JSON.stringify(voted));
+      updateCounts();
+
+      thankyou.classList.add('show');
+      setTimeout(() => {
+        thankyou.classList.remove('show');
+        document.getElementById('name').value = '';
+        card.classList.remove('selected');
+        status.innerText = '';
+      }, 1500);
+
+    } catch (err) {
+      status.innerText = "שגיאה בשליחת התשובה לצ’אט.";
+      status.style.color = "red";
+      console.error(err);
+    }
+  });
+});
 </script>
+
 </body>
 </html>
